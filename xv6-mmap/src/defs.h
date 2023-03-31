@@ -170,6 +170,14 @@ void            uartinit(void);
 void            uartintr(void);
 void            uartputc(int);
 
+// davis kmalloc.
+void*           kmalloc(uint);
+void            kmfree(void*);
+
+//mmap.c
+void*           mmap(void *, uint, int, int, int, int);
+int             munmap(void *, uint);
+
 // vm.c
 void            seginit(void);
 void            kvmalloc(void);
