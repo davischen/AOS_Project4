@@ -35,6 +35,22 @@ struct context {
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
+typedef struct mmap_region 
+{ 
+  //Linked-List pointers
+  struct mmap_region* next;
+
+  //Region Meta-Data:
+  void* addr; //starting address for mapped region 
+  uint length;      //length of allocated region
+  int region_type; //anonymous of file-backed
+  int offset;      //offset in a file-backed allocation
+  int fd;          //file descriptor (-1 for anonymous allocation)
+  int prot;        //protection bits for the mapped region (default is read-only)
+} mmap_region;
+
+
+// Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
   pde_t* pgdir;                // Page table
@@ -49,6 +65,8 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  int nregions;                // jps - number of allocated regions
+  struct mmap_region *region_head;     // Linked list of memory map regions
 };
 
 // Process memory is laid out contiguously, low addresses first:

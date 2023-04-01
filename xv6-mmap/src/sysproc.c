@@ -89,7 +89,7 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
-//davis
+//davis - called kmalloc
 int
 sys_kmalloc(void)
 {
@@ -101,7 +101,7 @@ sys_kmalloc(void)
   return (int)kmalloc((uint)nbytes);
 }
 
-//jps - added kmfree system call wrapper
+//davis - added kmfree system
 int
 sys_kmfree(void)
 {
@@ -115,8 +115,8 @@ sys_kmfree(void)
   return 0;
 }
 
-//davis
-/*int
+//davis - added mmap function
+int
 sys_mmap(void)
 {
   int addr;
@@ -132,10 +132,10 @@ sys_mmap(void)
   }
   return (int)mmap((void*)addr, (uint)length, (uint)prot,
                     (uint)flags, (uint)fd, (uint)offset);
-}*/
+}
 
-//jps - added munmap system call
-/*int
+//davis - implemented munmap system call
+int
 sys_munmap(void)
 {
   int addr;
@@ -148,4 +148,3 @@ sys_munmap(void)
 
   return munmap((void*)addr, (uint)length);
 }
-*/
