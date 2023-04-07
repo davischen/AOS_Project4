@@ -171,6 +171,8 @@ UPROGS=\
 	_cat\
 	_echo\
 	_forktest\
+	_test_8\
+	_test_9\
 	_grep\
 	_init\
 	_kill\
@@ -250,7 +252,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # check in that version.
 
 EXTRA=\
-	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
+	mkfs.c test_8.c test_9.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	kmalloc.c mmap.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c\

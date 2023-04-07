@@ -24,9 +24,16 @@ static void remove_region(mmap_region* node, mmap_region* prev)
     prev->next = node->next;
   kmfree(node);
 }
+static void change_proc()
+{
 
+}
 static void free_region(struct proc *curproc ,void *addr, uint length)
 {
+  if (curproc->region_head == NULL) {
+    return;
+  }
+
   mmap_region* curnode = curproc->region_head;
   mmap_region* next_node = curproc->region_head->next;
 
@@ -57,6 +64,19 @@ static void free_region(struct proc *curproc ,void *addr, uint length)
 void *mmap(void *addr, uint length, int prot, int flags, int fd, int offset)
 {
   struct proc *curproc = myproc();
+  // Check for invalid arguments
+  if (length == 0)
+    return (void*)-1;
+
+  // Check if address is page-aligned
+  if ((uint)addr % PGSIZE != 0) {
+    return (void*)-1;
+  }
+
+  // Check if flags parameter is valid
+  if (flags != MAP_PRIVATE && flags != MAP_SHARED) {
+    return (void*)-1;
+  }
 
   //get current point
   uint oldsz = curproc->sz;
@@ -119,6 +139,7 @@ void *mmap(void *addr, uint length, int prot, int flags, int fd, int offset)
       addr += PGROUNDDOWN(PGSIZE+length);
     curnode->next = new_region;
   }
+
   //the number of regions add 1 to increment region count
   curproc->nregions++;
   //assign new region's starting address
@@ -127,6 +148,9 @@ void *mmap(void *addr, uint length, int prot, int flags, int fd, int offset)
 }
 int munmap(void *addr, uint length)
 {
+  if (addr == NULL ||  length == 0)
+    return -1;
+
   //verify that the address and length passed is indeed a valid mapping
   //addr has to smaller than KERNBASE, and its length must be larger than 1
   if (addr == (void*)KERNBASE || addr > (void*)KERNBASE || length < 1)
@@ -147,7 +171,8 @@ int munmap(void *addr, uint length)
     remove_region(curproc->region_head, 0);
     return 0;
   }
-
-  free_region(curproc,addr,length);
+  else{
+     free_region(curproc,addr,length);
+  }
   return 0;
 }
