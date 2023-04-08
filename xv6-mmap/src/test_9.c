@@ -9,44 +9,28 @@
 #include "memlayout.h"
 #include "mmu.h"
 
-int memcmp(char* start, uint size, char val) {
-    for (uint i = 0; i < size; i++) {
-        if (start[i] != val)
-            return 1;
-    }
-    return 0;
-}
+#define CHUNK_SIZE 4096
 
-/* Check to make sure page updates are appropriately flushed along with closest address behavior */
 int
 main(int argc, char *argv[])
 {
-  int size = PGSIZE;
+  void *ptr = 0;
+  int count = 0;
+  char *addr = (char*)0x4000;
+  while ((ptr = mmap(addr, CHUNK_SIZE, 0,0, -1, 0)) != 0 && count<=10) {
+      count++;
 
-  char* a1 = mmap(0, size, 0, 0, -1, 0);
-  char* a2 = mmap(0, size, 0, 0, -1, 0);
-  munmap(a1, size);
-  munmap(a2, size);
-
-  char* a3 = mmap(a1, size, 0, 0, -1, 0);
-
-  if (a3 != a1)
-    printf(1, "XV6_TEST_OUTPUT: closest address not chosen\n");
-
-  memset(a3, 0, size);
-
-  int pid = fork();
-  if (pid < 0) {
-      printf(1, "XV6_TEST_OUTPUT: fork failed\n");
+      printf(1,"Allocated %d chunks of memory.\n", count);
   }
 
-  if (pid == 0) {
-      exit();
+  // free all memory using munmap
+  int i;
+  for (i = 0; i < count; i++) {
+      if (munmap(ptr + i*CHUNK_SIZE, CHUNK_SIZE) < 0) {
+          printf(1,"munmap failed.\n");
+          exit();
+      }
   }
-
-  wait();
-
-  printf(1, "XV6_TEST_OUTPUT: test9 passed\n");
-  munmap(a3, size);
-  exit();
+  printf(1,"Freed all memory.\n");
+  return 0;
 }

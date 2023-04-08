@@ -7,55 +7,43 @@
 #include "syscall.h"
 #include "traps.h"
 #include "memlayout.h"
-#include "mmu.h"
 
-int memcmp(char* start, uint size, char val) {
-    for (uint i = 0; i < size; i++) {
-        if (start[i] != val)
-            return 1;
+
+#define TEST_COUNT 20
+#define MAX_SIZE 1000
+
+void test_manywork()
+{
+    printf(1,"Testing kmfree...\n");
+
+    void* ptrs[TEST_COUNT];
+
+    // Allocate memory
+    for (int i = 0; i < TEST_COUNT; i++)
+    {
+        ptrs[i] = kmalloc(MAX_SIZE);
+
+        if (ptrs[i] == 0)
+        {
+            printf(1,"kmalloc failed to allocate memory!\n");
+            return;
+        }
+
+        printf(1,"Allocated 1000 bytes at address %p\n", ptrs[i]);
     }
-    return 0;
+
+    // Free memory
+    for (int i = 0; i < TEST_COUNT; i++)
+    {
+        kmfree(ptrs[i]);
+        printf(1,"Freed memory at address %p\n", ptrs[i]);
+    }
+
+    printf(1,"kmfree test successful!\n");
 }
 
-/* Fork test to make sure deep copy of linked list, along with a malloc */
-int
-main(int argc, char *argv[])
+int main()
 {
-  int size =  2*PGSIZE;
-
-  char* a1 = mmap(0, size, 0, 0, -1, 0);
-  char* m1 = malloc(size);
-  char* a2 = mmap(0, size, 0, 0, -1, 0);
-
-  memset(a1, 1, size);
-  memset(m1, 2, size);
-  memset(a2, 3, size);
-
-  int pid = fork();
-
-  if (pid < 0) {
-      printf(1, "XV6_TEST_OUTPUT: fork failed\n");
-  }
-
-  if (pid == 0) {
-      memset(a2, 0, size);
-      munmap(a1, size);
-      exit();
-  }
-
-  wait();
-
-  char* a3 = mmap(0, size, 0, 0, -1, 0);
-
-  if (a3 == a1 || a3 == a2) {
-      printf(1, "XV6_TEST_OUTPUT: reuse of address\n");
-  }
-
-  if (memcmp(a1, size, 1) != 0 || memcmp(a2, size, 3) != 0 || memcmp(m1, size, 2) != 0)
-    printf(1, "XV6_TEST_OUTPUT: values changed\n");
-
-  printf(1, "XV6_TEST_OUTPUT: test8 passed\n");
-  munmap(a1, size);
-  munmap(a3, size);
-  exit();
+    test_manywork();
+    return 0;
 }

@@ -24,10 +24,6 @@ static void remove_region(mmap_region* node, mmap_region* prev)
     prev->next = node->next;
   kmfree(node);
 }
-static void change_proc()
-{
-
-}
 static void free_region(struct proc *curproc ,void *addr, uint length)
 {
   if (curproc->region_head == NULL) {
@@ -63,26 +59,24 @@ static void free_region(struct proc *curproc ,void *addr, uint length)
 // returns - starting address of maped region or -1 on failure
 void *mmap(void *addr, uint length, int prot, int flags, int fd, int offset)
 {
-  struct proc *curproc = myproc();
   // Check for invalid arguments
   if (length == 0)
     return (void*)-1;
 
-  // Check if address is page-aligned
+  //it checks if the requested address is page-aligned
   if ((uint)addr % PGSIZE != 0) {
     return (void*)-1;
   }
 
-  // Check if flags parameter is valid
-  if (flags != MAP_PRIVATE && flags != MAP_SHARED) {
-    return (void*)-1;
-  }
-
   //get current point
+  struct proc *curproc = myproc();
+  //it gets the current process size
   uint oldsz = curproc->sz;
+  //adds the requested length to the new size of the process
   uint newsz = curproc->sz + length;
 
   //allocuvm to extend memory size
+  //extend the memory size of the process by the requested length.
   if((curproc->sz = allocuvm(curproc->pgdir, oldsz, newsz))==0)
      return (void*)-1;
 
@@ -99,7 +93,7 @@ void *mmap(void *addr, uint length, int prot, int flags, int fd, int offset)
     return (void*)-1;
   }
 
-  //assign address data to new region
+  //store the mapping information for the newly allocated memory region
   addr = (void*)PGROUNDDOWN(oldsz);
   new_region->addr = addr;
   new_region->length = length;
@@ -114,6 +108,7 @@ void *mmap(void *addr, uint length, int prot, int flags, int fd, int offset)
   // else iterate over the mapped list and check memory region in boundary of current process
   else
   {
+    //it iterates over the mapped list and checks whether the memory region is in the boundary of the current process.
     mmap_region* curnode = curproc->region_head;
     while(curnode->next != 0)
     {
@@ -158,11 +153,11 @@ int munmap(void *addr, uint length)
     return -1;
   }
   struct proc *curproc = myproc();
-
+  
   if (curproc->nregions == 0)
     return -1;
 
-  //adjust region size in current processs, and free up memory and remove node 
+  //If the region to be removed is the first and only region in the list of mapped regions, then it frees up the memory
   if (curproc->region_head->addr == addr && curproc->region_head->length == length)
   {
     curproc->sz = deallocuvm(curproc->pgdir, curproc->sz, curproc->sz - length);
@@ -172,6 +167,7 @@ int munmap(void *addr, uint length)
     return 0;
   }
   else{
+     //iterates over the list of mapped regions and finds the node corresponding to the given address and length.
      free_region(curproc,addr,length);
   }
   return 0;

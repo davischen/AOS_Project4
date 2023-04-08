@@ -95,7 +95,7 @@ sys_kmalloc(void)
 {
   int nbytes;
 
-  if(argint(0, &nbytes) < 0)//whether nbytes is int or not
+  if(argint(0, &nbytes) <= 0)//whether nbytes is int or not
     return -1;
 
   return (int)kmalloc((uint)nbytes);
@@ -107,7 +107,7 @@ sys_kmfree(void)
 {
   int addr;
 
-  if(argint(0, &addr) < 0)//whether addr is int or not
+  if(argint(0, &addr) <= 0)//whether addr is int or not
     return -1;
 
   kmfree((void*)addr);
