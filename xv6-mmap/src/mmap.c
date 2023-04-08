@@ -60,8 +60,8 @@ static void free_region(struct proc *curproc ,void *addr, uint length)
 void *mmap(void *addr, uint length, int prot, int flags, int fd, int offset)
 {
   // Check for invalid arguments
-  if (length == 0)
-    return (void*)-1;
+  /*if (addr == NULL ||  length == 0)
+    return (void*)-1;*/
 
   //it checks if the requested address is page-aligned
   if ((uint)addr % PGSIZE != 0) {
@@ -143,8 +143,8 @@ void *mmap(void *addr, uint length, int prot, int flags, int fd, int offset)
 }
 int munmap(void *addr, uint length)
 {
-  if (addr == NULL ||  length == 0)
-    return -1;
+  /*if (addr == NULL ||  length == 0)
+    return -1;*/
 
   //verify that the address and length passed is indeed a valid mapping
   //addr has to smaller than KERNBASE, and its length must be larger than 1

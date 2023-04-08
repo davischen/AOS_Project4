@@ -9,28 +9,44 @@
 #include "memlayout.h"
 #include "mmu.h"
 
-#define CHUNK_SIZE 4096
+#define MAX_SIZE (1024 * 1024) // 1MB
 
-int
-main(int argc, char *argv[])
-{
-  void *ptr = 0;
-  int count = 0;
-  char *addr = (char*)0x4000;
-  while ((ptr = mmap(addr, CHUNK_SIZE, 0,0, -1, 0)) != 0 && count<=10) {
-      count++;
+int main() {
+    char *addr = (char*)0x4000;
+    // allocate memory using mmap
+    int count = 1;
+    void *ptr;
+    
+    /*ptr = mmap(0,0, 0, 0, -1, 0);
+    if (ptr < 0) {
+        printf(1, "XV6_TEST_OUTPUT : mmap failed\n");
+    }
+    memset(ptr, 0, 0);
+        
+    if (munmap(0, 0) < 0) {
+        printf(1, "XV6_TEST_OUTPUT : munmap failed\n");
+    }*/
 
-      printf(1,"Allocated %d chunks of memory.\n", count);
-  }
-
-  // free all memory using munmap
-  int i;
-  for (i = 0; i < count; i++) {
-      if (munmap(ptr + i*CHUNK_SIZE, CHUNK_SIZE) < 0) {
-          printf(1,"munmap failed.\n");
-          exit();
-      }
-  }
-  printf(1,"Freed all memory.\n");
-  return 0;
+    while (count<10) {
+        ptr = mmap(addr,MAX_SIZE*count, 0, 0, -1, 0);
+        if (ptr == 0) {
+            printf(1, "XV6_TEST_OUTPUT : mmap failed\n");
+            break;
+        }
+        
+        memset(ptr, 0, MAX_SIZE*count);
+        
+        if (munmap(ptr, MAX_SIZE*count) < 0) {
+            printf(1, "XV6_TEST_OUTPUT : munmap failed\n");
+            break;
+        }
+        
+        count++;
+        printf(1,"Allocated and deallocated block %d\n", count);
+        //sleep(1); // slow down loop for better observation
+    }
+    
+    printf(1,"Allocating and deallocating %d blocks\n", count);
+    
+    return 0;
 }
