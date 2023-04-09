@@ -17,26 +17,37 @@ int main() {
     int count = 1;
     void *ptr;
     
-    /*ptr = mmap(0,0, 0, 0, -1, 0);
+    /*ptr = mmap(0,MAX_SIZE, 0, 0, -1, 0);
     if (ptr < 0) {
         printf(1, "XV6_TEST_OUTPUT : mmap failed\n");
     }
     memset(ptr, 0, 0);
         
-    if (munmap(0, 0) < 0) {
+    if (munmap(0, MAX_SIZE) < 0) {
         printf(1, "XV6_TEST_OUTPUT : munmap failed\n");
     }*/
 
     while (count<10) {
-        ptr = mmap(addr,MAX_SIZE*count, 0, 0, -1, 0);
+        int size=MAX_SIZE*count;
+        ptr = mmap(addr,size, 0, 0, -1, 0);
         if (ptr == 0) {
             printf(1, "XV6_TEST_OUTPUT : mmap failed\n");
             break;
         }
         
-        memset(ptr, 0, MAX_SIZE*count);
+        memset(ptr, 0, size);
         
-        if (munmap(ptr, MAX_SIZE*count) < 0) {
+        int pid = fork();
+
+        if (pid < 0) {
+            printf(1, "XV6_TEST_OUTPUT: fork failed\n");
+        }
+        if (pid == 0) {
+            exit();
+        }
+        wait();
+
+        if (munmap(ptr, size) < 0) {
             printf(1, "XV6_TEST_OUTPUT : munmap failed\n");
             break;
         }
@@ -48,5 +59,6 @@ int main() {
     
     printf(1,"Allocating and deallocating %d blocks\n", count);
     
+    printf(1,"mmap test successful!\n");
     return 0;
 }

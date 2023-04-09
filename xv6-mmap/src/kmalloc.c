@@ -3,12 +3,6 @@
 #include "defs.h"
 #include "param.h"
 
-// davis - kmalloc.c
-// Memory Allocator for the xv6 kernel.
-// Code based off of umalloc.c:
-// Memory allocator by Kernighan and Ritchie,
-// The C programming Language, 2nd ed.  Section 8.7.
-
 typedef long Align;
 
 union header {
@@ -51,7 +45,7 @@ kmfree(void *ap)
 static Header*
 morecore()
 {
-  cprintf("request more free memory\n");
+  //cprintf("request more free memory\n");
   char *p;
   Header *hp;
 
@@ -74,6 +68,7 @@ kmalloc(uint nbytes)
   {
     panic("kmalloc: requested more than allowed in a single allocation");
   }
+  
   //Calculate the number of Header units needed to satisfy the requested allocation size. 
   nunits = (nbytes + sizeof(Header) - 1)/sizeof(Header) + 1;
   //Check if the free list is empty. 

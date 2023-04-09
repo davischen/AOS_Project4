@@ -12,7 +12,7 @@
 #define TEST_COUNT 20
 #define MAX_SIZE 1000
 
-void test_manywork()
+int main()
 {
     printf(1,"Testing kmfree...\n");
 
@@ -26,7 +26,7 @@ void test_manywork()
         if (ptrs[i] == 0)
         {
             printf(1,"kmalloc failed to allocate memory!\n");
-            return;
+            return 0;
         }
 
         printf(1,"Allocated 1000 bytes at address %p\n", ptrs[i]);
@@ -40,10 +40,6 @@ void test_manywork()
     }
 
     printf(1,"kmfree test successful!\n");
-}
 
-int main()
-{
-    test_manywork();
     return 0;
 }
